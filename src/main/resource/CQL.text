@@ -1,0 +1,120 @@
+
+	+-------------------------------+	
+	|	POC Manual 					|
+	+-------------------------------+
+
+
+Usual statements
+	• CREATE / DROP / ALTER TABLE / SELECT 
+	-----------------------------------------------------------
+
+ALTER KEYSPACE
+	Change property values of a keyspace.
+
+	ALTER KEYSPACE "Excalibur" WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'datacenter1' : 3 };
+
+	CREATE TABLE users (user_name varchar PRIMARY KEY,bio ascii,);
+	ALTER TABLE users ALTER bio TYPE text;
+	ALTER TABLE users ALTER bio TYPE blob;
+	ALTER TABLE cycling.basic_info DROP birth_year;	
+
+Update:
+	-------------------------------------
+	UPDATE customer_account SET customer_email=’jmiller@datastax.com’ IF customer_email=’jmiller@datastax.com’;
+
+
+Counters:
+	---------------------------------------
+	UPDATE UserActions SET total = total + 2 WHERE user = 123 AND action = ’xyz';
+
+Counters++
+	---------------------------------------
+	• simpler implementation, no more edge cases
+	• possible to properly repair now
+	• significantly less garbage and internode traffic generated
+	• better performance for 99% of uses 
+
+
+
+Time to live (TTL)
+	---------------------------------------
+	INSERT INTO users (id, first, last) VALUES (‘abc123’, ‘abe’,‘lincoln’) USING TTL 3600;
+
+Atomic Batch Statements
+	---------------------------------------
+	BEGIN BATCH
+ 		INSERT INTO users (userID, password, name) VALUES ('user2', 'ch@ngem3b', 'second user')
+ 		UPDATE users SET password = 'ps22dhds' WHERE userID = 'user2'
+ 		INSERT INTO users (userID, password) VALUES ('user3', 'ch@ngem3c')
+ 		DELETE name FROM users WHERE userID = 'user2’
+	APPLY BATCH;
+
+
+QueryBuilder
+	---------------------------------------
+
+	Query query = QueryBuilder.select().all().from("keyspace","user").where(eq("username","johnny")); 
+	query.setConsistencyLevel(ConsistencyLevel.ONE);
+	ResultSet rs = session.execute(query); 
+
+
+UDT: User Defined Types
+	------------------------------------------
+	CREATE TYPE address (street text,city text,zip_code int,phones set<text>);
+	CREATE TABLE users (id uuid PRIMARY KEY,name text,addresses map<text, address>);
+	SELECT id, name, addresses.city, addresses.phones FROM users;
+
+	 id | name | addresses.city | addresses.phones
+	--------------------+----------------+--------------------------
+	 63bf691f | johnny | London | {’0201234567', ’0796622222'}
+
+
+Secondary indexes
+	+----------------------------------------------------------------
+	Secondary indexes on collections
+
+	SET-------------------------------------
+	CREATE TABLE songs (id uuid PRIMARY KEY,artist text,album text,title text,data blob,tags set<text>);
+	CREATE INDEX song_tags_idx ON songs(tags);
+
+	SELECT * FROM songs WHERE tags CONTAINS 'blues';
+
+	id 	 | album 	 | artist 	     | tags 		     | title
+	----------+---------------+-------------------+-----------------------+------------------
+	5027b27e | Country Blues | Lightnin' Hopkins | {'acoustic', 'blues'} | Worrying My Mind
+
+
+	MAP--------------------------------------------
+
+	CREATE TABLE products (id int PRIMARY KEY, description text, price int, categories set<text>,features map<text, text>);
+ 	CREATE INDEX feat_key_index ON products(KEYS(features));
+
+ 	SELECT id, description FROM products WHERE features CONTAINS KEY 'refresh-rate';
+
+ 	id | description
+ 	-------+--------------------------------------
+ 	34134 | 120-inch 1080p 3D plasma TV
+
+
+Row Cache
+	-------------------------------------------
+	CREATE TABLE notifications (target_user text,notification_id timeuuid,source_id uuid,source_type text,activity text,PRIMARY KEY (target_user, notification_id)) 	WITH CLUSTERING ORDER BY (notification_id DESC) AND caching = 'rows_only' AND rows_per_partition_to_cache = '3';
+
+
+Prepared Statements
+	----------------------------------
+
+	PreparedStatement statement = session.prepare("INSERT INTO user (username, password) " + "VALUES (?, ?)");
+	BoundStatement bs = statement.bind();
+	bs.setString("username","johnny");
+	bs.setString("password", "password1234");
+	session.execute(bs); 
+
+
+Tip
+	----------------------------------------
+	• If you need to do a lot of work, it’s often better to make many small queries concurrently than to make one big query.
+	• executeAsync and Futures – makes this really easy!
+	• Big queries can put a high load on one coordinator
+	• Big queries can skew your 99th percentile latencies for other queries
+	• If one small query fails you can easily retry, if a big query than you have to retry the whole thing 
