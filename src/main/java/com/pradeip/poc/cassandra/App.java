@@ -11,11 +11,6 @@ import com.datastax.driver.core.Session;
  */
 public class App implements Constants {
 
-	static final String SCRIPT_FOLDER_PATH = "F:\\7_Dev_Project\\";
-	static final String SCRIPT_NAME = "sample.cql";
-	static final String KEYSPACE = "curiosity";
-	static final String TABLE = "eureka";
-	static final String defaultcqlStatement = "SELECT * FROM eureka";
 	static Session session;
 
 	public static void main(String[] args) {
@@ -38,7 +33,6 @@ public class App implements Constants {
 
 	@SuppressWarnings("resource")
 	public static void recurse(String cmd, CassandraOperation caop) {
-		System.out.println(cmd + " -----------------------------");
 		if ("exit".equals(cmd))
 			return;
 		System.out.println(" How can I assit you. Type help for more assistance");
@@ -48,6 +42,9 @@ public class App implements Constants {
 			switch (cmd) {
 
 			case "rs":
+				System.out.print("Enter full path of the script file to use ");
+				String path = SCRIPT_FOLDER_PATH + SCRIPT_NAME;
+				path = keyboard.nextLine();
 				System.out.println(NL + GREEN + "Reading script file from disk:" + SCRIPT_FOLDER_PATH + SCRIPT_NAME);
 				caop.executeDDLScript(SCRIPT_FOLDER_PATH + SCRIPT_NAME);
 				cmd = null;
@@ -86,7 +83,9 @@ public class App implements Constants {
 			}
 
 		} catch (Exception e) {
-			System.out.println("unexpected input recieved,please try again");// TODO: handle exception
+			// Terminate JVM
+            System.exit(0);
+			System.out.println("unexpected input recieved,please try again");
 		}
 
 		recurse(cmd, caop);

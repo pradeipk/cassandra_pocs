@@ -35,11 +35,10 @@ public class ConnectionFactory implements Constants {
 					.withAuthProvider(new PlainTextAuthProvider(user, password));
 			cluster = clusterBuilder.build();
 			session = cluster.connect();
-			System.out.println("Cheers!..Cluster Instantiated.");
+			System.out.println(NL + "Cheers!..Cluster Instantiated.");
 			return true;
 		} catch (Exception e) {
-			System.out.println(RED + L + "| Cassandra Server is down,try later |" + L);
-			// System.out.println(e.getLocalizedMessage());
+			System.out.println(RED + L + "| Cassandra Server is down, try later |" + L);
 			return false;
 		}
 	}
@@ -47,10 +46,8 @@ public class ConnectionFactory implements Constants {
 	public static Session getSession(String keyspace) {
 		if (session == null)
 			return null;
-		// System.out.println("Attaching Session--------------");
-		// Session session = cluster.connect(keyspace);
 		if (!session.isClosed())
-			System.out.println("Session is Active..making most of it.");
+			System.out.println(NL + "Session is Active...");
 		return session;
 	}
 

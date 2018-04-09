@@ -1,6 +1,12 @@
 package com.pradeip.poc.cassandra;
 
 public interface Constants {
+	
+	static final String SCRIPT_FOLDER_PATH = "F:\\7_Dev_Project\\";
+	static final String SCRIPT_NAME = "sample.cql";
+	static final String KEYSPACE = "curiosity";
+	static final String TABLE = "eureka";
+	static final String defaultcqlStatement = "SELECT * FROM eureka";
 	 // Reset
     public static final String RESET = "\033[0m";  // Text Reset
 
