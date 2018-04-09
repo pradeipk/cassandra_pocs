@@ -82,6 +82,6 @@ public interface Constants {
     public static final String L =      "\n --------------------------------------- \n";   // upper line
     public static final String WELCOME = "|		Welcome!		|";
     public static final String NL = "\n\n";
-    public static final String HELP = "\nrs : run script from file \n bi : bulk insert \n q : run query \n e : exit";
+    public static final String HELP = "\nrs: run script from file \nbi: bulk insert \nq: run query \nexit: to exit from the application";
     
 }

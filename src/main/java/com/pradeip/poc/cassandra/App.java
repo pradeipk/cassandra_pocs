@@ -35,7 +35,7 @@ public class App implements Constants {
 	public static void recurse(String cmd, CassandraOperation caop) {
 		if ("exit".equals(cmd))
 			return;
-		System.out.println(" How can I assit you. Type help for more assistance");
+		System.out.println("\nHow can I assit you. Type help for more assistance");
 		Scanner keyboard = new Scanner(System.in);
 		cmd = keyboard.nextLine();
 		try {

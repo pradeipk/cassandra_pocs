@@ -14,16 +14,22 @@ public class ConnectionFactory implements Constants {
 	static String ngp_node = "127.0.0.1";
 	static String pt_node = "127.0.0.1";
 	static String ga_node = "127.0.0.1";
-	static String dcName = "ngp_india"; // this is the DC name you used when created
-	static String user = "user";
-	static String password = "password";
+	static String dcName = "ngp_india"; // this is the DC name you used when
+										// created
+	static String user = "cassandra";
+	static String password = "cassandra";
 	static Cluster cluster = null;
 	static Session session;
 
 	public static void buildMultiNodeCluster() {
 
-		Cluster.Builder clusterBuilder = Cluster.builder().addContactPoints(local_node, ngp_node, pt_node)
-				.withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc(dcName).build()).withPort(9042)
+		@SuppressWarnings("unused")
+		Cluster.Builder clusterBuilder = Cluster
+				.builder()
+				.addContactPoints(local_node, ngp_node, pt_node)
+				.withLoadBalancingPolicy(
+						DCAwareRoundRobinPolicy.builder().withLocalDc(dcName)
+								.build()).withPort(9042)
 				.withAuthProvider(new PlainTextAuthProvider(user, password));
 
 	}
@@ -31,14 +37,18 @@ public class ConnectionFactory implements Constants {
 	public static boolean buildSingleNodeCluster() {
 
 		try {
-			Cluster.Builder clusterBuilder = Cluster.builder().addContactPoints(local_node).withPort(9042)
+			Cluster.Builder clusterBuilder = Cluster
+					.builder()
+					.addContactPoints(local_node)
+					.withPort(9042)
 					.withAuthProvider(new PlainTextAuthProvider(user, password));
 			cluster = clusterBuilder.build();
 			session = cluster.connect();
 			System.out.println(NL + "Cheers!..Cluster Instantiated.");
 			return true;
 		} catch (Exception e) {
-			System.out.println(RED + L + "| Cassandra Server is down, try later |" + L);
+			System.out.println(RED + L
+					+ "| Cassandra Server is down, try later |" + L);
 			return false;
 		}
 	}
@@ -56,9 +66,7 @@ public class ConnectionFactory implements Constants {
 	}
 
 	public static Statement buildQuery(String query) {
-		// return QueryBuilder.insertInto("abc")
 		return null;
-		// QueryBuilder.
 	}
 
 }

@@ -11,6 +11,7 @@ import java.util.UUID;
 import com.datastax.driver.core.ColumnDefinitions.Definition;
 import com.datastax.driver.core.ColumnMetadata;
 import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.TableMetadata;
@@ -18,7 +19,7 @@ import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.mapping.annotations.Query;
 
-public class Utility implements Constants{
+public class Utility implements Constants {
 
 	static final String SCRIPT = "sample.cql";
 
@@ -44,7 +45,8 @@ public class Utility implements Constants{
 				if (!line.isEmpty())
 					session.execute(line);
 			}
-			System.out.println("------------------\n All queries executed.\n-------------------");
+			System.out
+					.println("------------------\n All queries executed.\n-------------------");
 			session.close();
 			scanner.close();
 
@@ -53,32 +55,38 @@ public class Utility implements Constants{
 		}
 	}
 
-	public void insertBulkRecords(int numberOfRecords, Session session, String keyspace, String table) {
+	public void insertBulkRecords(int numberOfRecords, Session session,
+			String keyspace, String table) {
 		int i = 0;
 		TableMetadata metadata = getMetadata(session, keyspace, table);
 		if (metadata == null) {
-			System.out.println("\n----------------Operation failed\n------------------");
+			System.out
+					.println("\n----------------Operation failed\n------------------");
 			return;
 		}
 		session.execute("use " + keyspace);
 		while (i++ <= numberOfRecords) {
 			Insert insert = prepareInsertData(metadata, table);
-			System.out.println("Insert was appied: " + session.execute(insert).wasApplied());
+			System.out.println("Insert was appied: "
+					+ session.execute(insert).wasApplied());
 		}
 
 		System.out.println(L + i + " Records Inserted successfully" + L);
 	}
 
-	public static TableMetadata getMetadata(Session session, String keyspace, String table) {
+	public static TableMetadata getMetadata(Session session, String keyspace,
+			String table) {
 
 		TableMetadata metadata = null;
 		try {
-			metadata = session.getCluster().getMetadata().getKeyspaces().get(0).getTable(table);
+			metadata = session.getCluster().getMetadata().getKeyspaces().get(0)
+					.getTable(table);
 			return metadata;
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-			System.out.println(RED
-					+ "\n ------------------------------------------\n| Operation failed, failed to get metadata |\n ------------------------------------------");
+			System.out
+					.println(RED
+							+ "\n ------------------------------------------\n| Operation failed, failed to get metadata |\n ------------------------------------------");
 			return null;
 		}
 	}
@@ -93,9 +101,11 @@ public class Utility implements Constants{
 		for (ColumnMetadata row : metadata.getColumns()) {
 			columns.add(row.getName());
 			values.add(getValue(row.getType()));
-			// System.out.println(row.getName() + " : " + getValue(row.getType()));
+			// System.out.println(row.getName() + " : " +
+			// getValue(row.getType()));
 		}
-		Insert insert = QueryBuilder.insertInto(table).values(columns, values).ifNotExists(); //
+		Insert insert = QueryBuilder.insertInto(table).values(columns, values)
+				.ifNotExists(); //
 
 		return insert;
 
@@ -116,7 +126,9 @@ public class Utility implements Constants{
 		case "timestamp":
 			value = new Date();
 			break;
-
+		case "uuid":
+			value = UUID.randomUUID();
+			break;
 		default:
 			value = UUID.randomUUID().toString();
 			break;
@@ -124,8 +136,8 @@ public class Utility implements Constants{
 		return value;
 
 	}
-	
-	public static Object getRowValue(Definition definition, Row row ) {
+
+	public static Object getRowValue(Definition definition, Row row) {
 		Object value;
 		switch (definition.getType().toString()) {
 		case "varchar":
@@ -152,10 +164,20 @@ public class Utility implements Constants{
 		return value;
 
 	}
-	public void getByPartitionKey(String keyspace, String table, String partitionKey) {		
-		//Query query = QueryBuilder.select().all().from(keyspace,table).where(); 
-		
+
+	public void getByPartitionKey(String keyspace, String table,
+			String partitionKey) {
+		// Query query =
+		// QueryBuilder.select().all().from(keyspace,table).where();
+
 	}
-	
-	
+
+	public static void executeCountQuery(Session session, String query) {
+		List<Row> reset = session.execute(query).all();
+		Row s = reset.get(0);
+		System.out.println();
+		System.out.println(NL + reset.get(0));
+
+	}
+
 }

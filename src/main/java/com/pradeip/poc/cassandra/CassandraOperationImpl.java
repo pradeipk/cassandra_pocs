@@ -38,12 +38,13 @@ public class CassandraOperationImpl implements CassandraOperation, Constants {
 				System.out.println(i + ": Insert was appied: " + session.execute(insert).wasApplied());
 			}
 
-			System.out.println(L + i + "| Records Inserted successfully |" + L);
+			System.out.println(L + --i + "| Records Inserted successfully |" + L);
+			Utility.executeCountQuery(session, "SELECT COUNT(*) FROM "+ table);
 
 		} catch (Exception e) {
 
 		}
-		System.out.println("insertBulkData: Total time elapsed in seonds:" + (System.currentTimeMillis() - T1) / 1000);
+		System.out.println(NL + " insertBulkData: Total time elapsed in seonds:" + (System.currentTimeMillis() - T1) / 1000);
 
 	}
 
