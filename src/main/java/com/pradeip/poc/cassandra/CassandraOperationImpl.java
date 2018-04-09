@@ -2,11 +2,16 @@ package com.pradeip.poc.cassandra;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 
+import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.TableMetadata;
+import com.datastax.driver.core.ColumnDefinitions.Definition;
+import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.querybuilder.Insert;
 
 public class CassandraOperationImpl implements CassandraOperation, Constants {
@@ -69,9 +74,7 @@ public class CassandraOperationImpl implements CassandraOperation, Constants {
 					session.execute(line);
 			}
 			System.out.println(BLUE_BOLD + L + "All queries executed." + L + RESET);
-			session.close();
 			scanner.close();
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -85,9 +88,26 @@ public class CassandraOperationImpl implements CassandraOperation, Constants {
 		int i = 0;
 		System.out.println(query);
 		session.execute(query);
-		for (Row rs : session.execute(query)) {
-			System.out.println(rs.getTupleValue(i++));
-			
+		ResultSet reset = session.execute(query);
+		ColumnDefinitions cd = reset.getColumnDefinitions();
+		System.out.println(PURPLE);
+		for (Definition definition : cd) {
+			System.out.print(definition.getName() + " | ");
+
+			// System.out.println(definition.getType());
+		}
+		System.out.println(RESET);
+		String columnName;
+		DataType columnType;
+		for (Row row : reset) {
+			for (Definition definition : cd) {
+				columnName = definition.getName();
+				columnType = definition.getType();
+				System.out.print(Utility.getRowValue(definition, row) + " | ");
+
+			}
+			System.out.println();
+
 		}
 	}
 

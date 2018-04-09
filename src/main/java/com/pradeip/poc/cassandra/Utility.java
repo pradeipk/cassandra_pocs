@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
+import com.datastax.driver.core.ColumnDefinitions.Definition;
 import com.datastax.driver.core.ColumnMetadata;
 import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.TableMetadata;
 import com.datastax.driver.core.querybuilder.Insert;
@@ -119,12 +121,37 @@ public class Utility implements Constants{
 			value = UUID.randomUUID().toString();
 			break;
 		}
-
 		return value;
 
 	}
 	
-	
+	public static Object getRowValue(Definition definition, Row row ) {
+		Object value;
+		switch (definition.getType().toString()) {
+		case "varchar":
+			value = row.getString(definition.getName());
+			break;
+		case "text":
+			value = row.getString(definition.getName());
+			break;
+		case "boolean":
+			value = row.getBool(definition.getName());
+			break;
+		case "int":
+			value = row.getInt(definition.getName());
+			break;
+		case "timestamp":
+			value = row.getTimestamp(definition.getName());
+			break;
+
+		default:
+			value = row.getString(definition.getName());
+			System.out.println(RED + "Datatype mismatch");
+			break;
+		}
+		return value;
+
+	}
 	public void getByPartitionKey(String keyspace, String table, String partitionKey) {		
 		//Query query = QueryBuilder.select().all().from(keyspace,table).where(); 
 		
